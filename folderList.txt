@@ -1,0 +1,12 @@
+_in
+_out
+aep
+img
+lipsync
+obj
+psd
+ref
+scn
+seq
+stock
+tex

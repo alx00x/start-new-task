@@ -1,0 +1,12 @@
+obj
+pdf
+  use
+  work
+info
+  ref
+  mat
+    photo
+    video
+ico
+omg
+tex

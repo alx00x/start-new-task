@@ -1,7 +1,6 @@
 ﻿// startNewTask.jsx
 // 
 // Name: startNewTask
-// Version: 1.0
 // Author: Aleksandar Kocic
 // 
 
@@ -10,8 +9,7 @@
     var scriptpath = Folder(new File($.fileName)).parent;
 
     // Globals
-    var gotCameraSwitch = false;
-    var gotCompositionSwitch = false;
+    var projectFolderName = "after";
 
     var now = new Date();
     var day = ("0" + now.getDate()).slice(-2);
@@ -32,7 +30,7 @@
     var startNewTask = new Object(); // Store globals in an object
     startNewTask.scriptNameShort = "SNT";
     startNewTask.scriptName = "Start New Task";
-    startNewTask.scriptVersion = "1.0";
+    startNewTask.scriptVersion = "1.1";
     startNewTask.scriptTitle = startNewTask.scriptName + " v" + startNewTask.scriptVersion;
 
     startNewTask.strGameName = {en: "Game Name"};
@@ -43,6 +41,7 @@
 
     startNewTask.strGameNameError = {en: "Please specify game name."};
     startNewTask.strTaskNameError = {en: "Please specify task name."};
+    startNewTask.strSpacesError = {en: "You better not use spaces!"};
     startNewTask.strProjectError = {en: "This project already exists! Choose a different name."};
 
     startNewTask.strHelp = {en: "?"};
@@ -120,7 +119,7 @@
 
         foldername = taskdate + "_" + gamename + "_" + taskname;
         projectname = gamename + "_" + taskname;
-        projectfile = scriptpath.fsName + "\\" + foldername + "\\aep\\" + projectname + "_v001";
+        projectfile = scriptpath.fsName + "\\" + foldername + "\\" + projectFolderName + "\\" + projectname + "_v001";
         projectfolder = new Folder(scriptpath.fsName + "\\" + foldername);
     }
 
@@ -140,7 +139,7 @@
         var fileOK = myFile.open("r","TEXT","????");
     
         //define arrays
-        var unnecessaryFolders = new Array("_in", "_out", "aep");
+        var unnecessaryFolders = new Array("_in", "_out", projectFolderName);
         var folderList = [];
    
         //read line by line in text file and push each line to array
@@ -149,8 +148,8 @@
             folderList.push(folderName);
         }
 
-        //add aep
-        folderList.push("aep");
+        //add projectFolderName
+        folderList.push(projectFolderName);
 
         //create directory structure
         var makeProjectDir = "mkdir " + scriptpath.fsName + "\\" + foldername + "\"";
@@ -242,12 +241,18 @@
 
     }
 
+    // Buttons:
+    //
     function startNewTask_doExecute() {
         startNewTask_getInfo();
         if (gamename == "") {
-            alert(startNewTask_localize(startNewTask.strGameNameError))
+            alert(startNewTask_localize(startNewTask.strGameNameError));
         } else if (taskname == "") {
-            alert(startNewTask_localize(startNewTask.strTaskNameError))
+            alert(startNewTask_localize(startNewTask.strTaskNameError));
+        } else if (hasWhiteSpace(gamename) == true) {
+            alert(startNewTask_localize(startNewTask.strSpacesError));
+        } else if (hasWhiteSpace(taskname) == true) {
+            alert(startNewTask_localize(startNewTask.strSpacesError));
         } else {
             if (startNewTask_checkProject() == true) {
                 alert(startNewTask_localize(startNewTask.strProjectError));
@@ -262,9 +267,14 @@
         sntPal.close();
     }
 
+    // Helper functions:
+    //
+    function hasWhiteSpace(string) {
+        return string.indexOf(' ') >= 0;
+    }
+
     // Main code:
     //
-
     // Build and show the floating palette
     var sntPal = startNewTask_buildUI(thisObj);
     if (sntPal !== null) {

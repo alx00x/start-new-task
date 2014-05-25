@@ -1,11 +1,5 @@
-_in
-_out
-img
+info
+paint
 lipsync
-obj
-psd
-ref
-scn
-seq
-stock
-tex
+render
+scene

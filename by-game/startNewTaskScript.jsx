@@ -11,18 +11,9 @@
     // Globals
     var projectFolderName = "after";
 
-    var now = new Date();
-    var day = ("0" + now.getDate()).slice(-2);
-    var month = ("0" + (now.getMonth() + 1)).slice(-2);
-    var year = ("0" + now.getFullYear()).slice(-2);
-    var today = (year) + (month) + (day);
-
-    var taskdate = today; //date
     var gamename; //game
     var taskname; //task
 
-    var foldername;
-    var projectname;
     var projectpath;
     var projectfile;
     var projectfolder;
@@ -36,7 +27,7 @@
     startNewTask.strGameName = {en: "Game Name"};
     startNewTask.strTaskName = {en: "Task Name"};
 
-    startNewTask.strExecute = {en: "Execute"};
+    startNewTask.strExecute = {en: "OK"};
     startNewTask.strCancel = {en: "Cancel"};
 
     startNewTask.strGameNameError = {en: "Please specify game name."};
@@ -117,10 +108,8 @@
         gamename = sntPal.grp.opts.getGameName.gameNameInput.text;
         taskname = sntPal.grp.opts.getTaskName.taskNameInput.text;
 
-        foldername = taskdate + "_" + gamename + "_" + taskname;
-        projectname = gamename + "_" + taskname;
-        projectfile = scriptpath.fsName + "\\" + foldername + "\\" + projectFolderName + "\\" + projectname + "_v001";
-        projectfolder = new Folder(scriptpath.fsName + "\\" + foldername);
+        projectfile = scriptpath.fsName + "\\" + gamename + "\\" + taskname + "\\" + projectFolderName + "\\" + taskname + "_v001";
+        projectfolder = new Folder(scriptpath.fsName + "\\" + gamename + "\\" + taskname);
     }
 
     function startNewTask_checkProject() {
@@ -152,11 +141,18 @@
         folderList.push(projectFolderName);
 
         //create directory structure
-        var makeProjectDir = "mkdir " + scriptpath.fsName + "\\" + foldername + "\"";
+        gamefolder = new Folder(scriptpath.fsName + "\\" + gamename);
+
+        if (gamefolder.exists == false) {
+            var makeGameDir = "mkdir " + scriptpath.fsName + "\\" + gamename + "\"";
+            system.callSystem("cmd /c \"" + makeGameDir + "\"");
+        }
+
+        var makeProjectDir = "mkdir " + scriptpath.fsName + "\\" + gamename + "\\" + taskname + "\"";
         system.callSystem("cmd /c \"" + makeProjectDir + "\"");
 
         for (var i = 0; i < folderList.length; i++) {
-            var cmdLineToExecute = "mkdir " + foldername + "\\" + folderList[i] + "\"";
+            var cmdLineToExecute = "mkdir " + gamename + "\\" + taskname + "\\" + folderList[i] + "\"";
             system.callSystem("cmd /c \"" + cmdLineToExecute + "\"");
         };
 

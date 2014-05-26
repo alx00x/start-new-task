@@ -1,5 +1,5 @@
 info
 paint
 lipsync
-render
 scene
+render

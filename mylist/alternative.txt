@@ -8,5 +8,5 @@ info
     photo
     video
 ico
-omg
 tex
+omg

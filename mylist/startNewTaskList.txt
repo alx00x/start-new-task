@@ -7,5 +7,5 @@ psd
 ref
 scn
 seq
-stock
 tex
+stock

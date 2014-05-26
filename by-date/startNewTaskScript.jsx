@@ -2,6 +2,8 @@
 // 
 // Name: startNewTask
 // Author: Aleksandar Kocic
+//
+// Note: Builds structure by date.
 // 
 
 (function startNewTask(thisObj)

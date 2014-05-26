@@ -8,5 +8,5 @@ psd
 ref
 scn
 seq
-tex
 stock
+tex

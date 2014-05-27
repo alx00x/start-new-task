@@ -30,9 +30,9 @@
     var projectfolder;
 
     var startNewTask = new Object(); // Store globals in an object
-    startNewTask.scriptNameShort = "SNT";
+    startNewTask.scriptNameShort = "SNT by date";
     startNewTask.scriptName = "Start New Task";
-    startNewTask.scriptVersion = "1.1";
+    startNewTask.scriptVersion = "1.2";
     startNewTask.scriptTitle = startNewTask.scriptName + " v" + startNewTask.scriptVersion;
 
     startNewTask.strGameName = {en: "Game Name"};

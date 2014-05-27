@@ -21,9 +21,9 @@
     var projectfolder;
 
     var startNewTask = new Object(); // Store globals in an object
-    startNewTask.scriptNameShort = "SNT";
+    startNewTask.scriptNameShort = "SNT by game";
     startNewTask.scriptName = "Start New Task";
-    startNewTask.scriptVersion = "1.1";
+    startNewTask.scriptVersion = "1.2";
     startNewTask.scriptTitle = startNewTask.scriptName + " v" + startNewTask.scriptVersion;
 
     startNewTask.strGameName = {en: "Game Name"};
@@ -36,6 +36,9 @@
     startNewTask.strTaskNameError = {en: "Please specify task name."};
     startNewTask.strSpacesError = {en: "You better not use spaces!"};
     startNewTask.strProjectError = {en: "This project already exists! Choose a different name."};
+
+    startNewTask.strNetFolders = {en: "Create Network Folders"};
+    startNewTask.strNetShortcut = {en: "Create Network Shortcut"};
 
     startNewTask.strHelp = {en: "?"};
     startNewTask.strHelpTitle = {en: "Help"};
@@ -81,6 +84,15 @@
                         taskNameText: StaticText { text:'" + startNewTask_localize(startNewTask.strTaskName) + "', preferredSize:[100,20] }, \
                         taskNameInput: EditText { alignment:['fill','center'], preferredSize:[200,20] },  \
                     }, \
+                    sepr: Group { \
+                        orientation:'row', alignment:['fill','top'], \
+                        rule: Panel { height: 2, alignment:['fill','center'] }, \
+                    }, \
+                    getNetOpts: Group { \
+                        alignment:['fill','top'], \
+                        netFolders: Checkbox { text:'" + startNewTask_localize(startNewTask.strNetFolders) + "', alignment:['fill','top'] }, \
+                        netShortcut: Checkbox { text:'" + startNewTask_localize(startNewTask.strNetShortcut) + "', alignment:['fill','top'] }, \
+                    }, \
                 }, \
                 cmds: Group { \
                     alignment:['fill','bottom'], \
@@ -103,9 +115,8 @@
         return pal;
     }
 
-    // Main Functions:
+    // Functions:
     //
-
     function startNewTask_getInfo() {
         gamename = sntPal.grp.opts.getGameName.gameNameInput.text;
         taskname = sntPal.grp.opts.getTaskName.taskNameInput.text;
@@ -125,6 +136,9 @@
     }
 
     function startNewTask_main() {
+
+        //system objects
+        //
         //reed text file
         var myFile = new File ("startNewTaskList.txt");
         var fileOK = myFile.open("r","TEXT","????");
@@ -158,6 +172,21 @@
             system.callSystem("cmd /c \"" + cmdLineToExecute + "\"");
         };
 
+        //network objects
+        //
+        //
+        if (sntPal.grp.opts.getNetOpts.netFolders.value == true) {
+            var vbsArgument = "false";
+            if (sntPal.grp.opts.getNetOpts.netShortcut.value == true) {
+                vbsArgument = "true";
+            }
+
+            var vbsCommand = scriptpath.fsName + "\\" + "startNewTaskNetwork.vbs " + vbsArgument;
+            system.callSystem("cmd /c \"" + vbsCommand + "\"");
+        }
+
+        //aftereffects objects
+        //
         //prototype function to remove unnecessary items from an array
         Array.prototype.removeByValue = function(val) {
             for(var i=0; i<this.length; i++) {

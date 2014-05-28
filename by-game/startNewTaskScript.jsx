@@ -11,7 +11,7 @@
     var scriptpath = Folder(new File($.fileName)).parent;
 
     // Globals
-    var projectFolderName = "after";
+    var aepFolderName = "after";
 
     var gamename; //game
     var taskname; //task
@@ -121,7 +121,7 @@
         gamename = sntPal.grp.opts.getGameName.gameNameInput.text;
         taskname = sntPal.grp.opts.getTaskName.taskNameInput.text;
 
-        projectfile = scriptpath.fsName + "\\" + gamename + "\\" + taskname + "\\" + projectFolderName + "\\" + taskname + "_v001";
+        projectfile = scriptpath.fsName + "\\" + gamename + "\\" + taskname + "\\" + aepFolderName + "\\" + taskname + "_v001";
         projectfolder = new Folder(scriptpath.fsName + "\\" + gamename + "\\" + taskname);
     }
 
@@ -144,7 +144,7 @@
         var fileOK = myFile.open("r","TEXT","????");
     
         //define arrays
-        var unnecessaryFolders = new Array("_in", "_out", projectFolderName);
+        var unnecessaryFolders = new Array("_in", "_out", aepFolderName);
         var folderList = [];
    
         //read line by line in text file and push each line to array
@@ -153,8 +153,8 @@
             folderList.push(folderName);
         }
 
-        //add projectFolderName
-        folderList.push(projectFolderName);
+        //add aepFolderName
+        folderList.push(aepFolderName);
 
         //create directory structure
         gamefolder = new Folder(scriptpath.fsName + "\\" + gamename);
@@ -176,12 +176,17 @@
         //
         //
         if (sntPal.grp.opts.getNetOpts.netFolders.value == true) {
-            var vbsArgument = "false";
+
+            var vbsArgument0 = aepFolderName;
+            var vbsArgument1 = gamename;
+            var vbsArgument2 = taskname;
+            var vbsArgument3 = "false";
+
             if (sntPal.grp.opts.getNetOpts.netShortcut.value == true) {
-                vbsArgument = "true";
+                vbsArgument3 = "true";
             }
 
-            var vbsCommand = scriptpath.fsName + "\\" + "startNewTaskNetwork.vbs " + vbsArgument;
+            var vbsCommand = scriptpath.fsName + "\\" + "startNewTaskNetwork.vbs " + vbsArgument0 + " " + vbsArgument1 + " " + vbsArgument2 + " " + vbsArgument3;
             system.callSystem("cmd /c \"" + vbsCommand + "\"");
         }
 

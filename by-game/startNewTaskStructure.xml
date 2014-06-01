@@ -1,5 +1,5 @@
 <?xml version='1.0'?>
-<root>
+<root network="\\192.168.0.200\c\game">
     <dir name="after" />
     <dir name="info">
         <dir name="mat" />

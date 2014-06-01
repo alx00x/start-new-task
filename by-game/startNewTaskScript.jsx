@@ -23,7 +23,7 @@
     var startNewTask = new Object(); // Store globals in an object
     startNewTask.scriptNameShort = "SNT by game";
     startNewTask.scriptName = "Start New Task";
-    startNewTask.scriptVersion = "1.3";
+    startNewTask.scriptVersion = "1.4";
     startNewTask.scriptTitle = startNewTask.scriptName + " v" + startNewTask.scriptVersion;
 
     startNewTask.strGameName = {en: "Game Name"};
@@ -139,22 +139,43 @@
 
         //system objects
         //
-        //reed text file
-        var myFile = new File ("startNewTaskList.txt");
-        var fileOK = myFile.open("r","TEXT","????");
-    
         //define arrays
-        var unnecessaryFolders = new Array("_in", "_out", aepFolderName);
         var folderList = [];
-   
-        //read line by line in text file and push each line to array
-        while(! myFile.eof){
-            folderName = myFile.readln();
-            folderList.push(folderName);
+        var pathArray = [];
+
+        //parse xml file
+        var xmlFile = new File("startNewTaskStructure.xml");
+        xmlFile.open("r");
+        var xmlString = xmlFile.read();
+        var myXML = new XML(xmlString);
+        xmlFile.close();
+
+        var nodeList = myXML.xpath("//*[@name]");
+        for (var i = 0; i < nodeList.length(); i++) {
+            var nodePath = "\\" + nodeList[i].@name.toString();
+            var parentNode = nodeList[i].parent();
+            while (parentNode.name() != "root") {
+                var folderName =  "\\" + parentNode.@name.toString();
+                nodePath = folderName.concat(nodePath);
+                parentNode = parentNode.parent();
+            }
+            pathArray.push(nodePath);
+        };
+
+        Array.prototype.contains = function(obj) {
+            var i = this.length;
+            while (i--) {
+                if (this[i] === obj) {
+                    return true;
+                }
+            }
+            return false;
         }
 
-        //add aepFolderName
-        folderList.push(aepFolderName);
+        //add aepFolderName if its not in pathArray array
+        if (pathArray.contains(aepFolderName) == false) {
+            pathArray.push(aepFolderName);
+        }
 
         //create directory structure
         gamefolder = new Folder(scriptpath.fsName + "\\" + gamename);
@@ -167,8 +188,8 @@
         var makeProjectDir = "mkdir " + scriptpath.fsName + "\\" + gamename + "\\" + taskname + "\"";
         system.callSystem("cmd /c \"" + makeProjectDir + "\"");
 
-        for (var i = 0; i < folderList.length; i++) {
-            var cmdLineToExecute = "mkdir " + gamename + "\\" + taskname + "\\" + folderList[i] + "\"";
+        for (var i = 0; i < pathArray.length; i++) {
+            var cmdLineToExecute = "mkdir " + gamename + "\\" + taskname + "\\" + pathArray[i] + "\"";
             system.callSystem("cmd /c \"" + cmdLineToExecute + "\"");
         };
 
@@ -177,16 +198,15 @@
         //
         if (sntPal.grp.opts.getNetOpts.netFolders.value == true) {
 
-            var vbsArgument0 = aepFolderName;
-            var vbsArgument1 = gamename;
-            var vbsArgument2 = taskname;
-            var vbsArgument3 = "false";
+            var vbsArgument0 = gamename;
+            var vbsArgument1 = taskname;
+            var vbsArgument2 = "false";
 
             if (sntPal.grp.opts.getNetOpts.netShortcut.value == true) {
-                vbsArgument3 = "true";
+                vbsArgument2 = "true";
             }
 
-            var vbsCommand = scriptpath.fsName + "\\" + "startNewTaskNetwork.vbs " + vbsArgument0 + " " + vbsArgument1 + " " + vbsArgument2 + " " + vbsArgument3;
+            var vbsCommand = scriptpath.fsName + "\\" + "startNewTaskNetwork.vbs " + vbsArgument0 + " " + vbsArgument1 + " " + vbsArgument2;
             system.callSystem("cmd /c \"" + vbsCommand + "\"");
         }
 
@@ -202,14 +222,18 @@
             }
         }
 
-        //remove items
-        for (var i = 0; i < unnecessaryFolders.length; i++) {
-            folderList.removeByValue(unnecessaryFolders[i])
+        //populate folderList
+        var firstLevel = myXML.children();
+        for (var i = 0; i < firstLevel.length(); i++) {
+            var nodeName = firstLevel[i].@name.toString();
+            folderList.push(nodeName);
+        };
+
+        //add aepFolderName if its not in folderList array
+        if (folderList.contains(aepFolderName) == false) {
+            folderList.push(aepFolderName);
         }
-    
-        //add additional items
-        folderList.push("comp");
-      
+     
         //create folder structure
         for (var i = 0; i < folderList.length; i++) {
             app.project.items.addFolder(folderList[i])
@@ -227,12 +251,12 @@
             }
         }
     
-        var renderFolder = projectItem("comp").items.addFolder("_render");
+        var renderFolder = projectItem(aepFolderName).items.addFolder("_render");
     
         //create comps and set label colors
-        var projectComp = projectItem("comp").items.addComp(taskname, 1024, 512, 1, 20, 25);
-        var renderComp = projectItem("comp").items.addComp("render_comp", 1024, 512, 1, 20, 25);
-        var mainComp = projectItem("comp").items.addComp("main_comp", 1024, 512, 1, 20, 25);
+        var projectComp = projectItem(aepFolderName).items.addComp(taskname, 1024, 512, 1, 20, 25);
+        var renderComp = projectItem(aepFolderName).items.addComp("render_comp", 1024, 512, 1, 20, 25);
+        var mainComp = projectItem(aepFolderName).items.addComp("main_comp", 1024, 512, 1, 20, 25);
     
         projectComp.parentFolder = renderFolder;
       

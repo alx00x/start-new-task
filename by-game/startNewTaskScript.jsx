@@ -23,7 +23,7 @@
     var startNewTask = new Object(); // Store globals in an object
     startNewTask.scriptNameShort = "SNT by game";
     startNewTask.scriptName = "Start New Task";
-    startNewTask.scriptVersion = "1.2";
+    startNewTask.scriptVersion = "1.3";
     startNewTask.scriptTitle = startNewTask.scriptName + " v" + startNewTask.scriptVersion;
 
     startNewTask.strGameName = {en: "Game Name"};

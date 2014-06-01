@@ -1,10 +1,9 @@
 Set objArgs = WScript.Arguments
-Dim AfterFolderName, GameName, TaskName, CreateShortcut
+Dim GameName, TaskName, CreateShortcut
 
-AfterFolderName = objArgs(0)
-GameName = objArgs(1)
-TaskName = objArgs(2)
-CreateShortcut = objArgs(3)
+GameName = objArgs(0)
+TaskName = objArgs(1)
+CreateShortcut = objArgs(2)
 
 Const ForReading = 1
 Set fso = CreateObject("Scripting.FileSystemObject")
@@ -15,12 +14,9 @@ Do Until textFile.AtEndOfStream
 Loop
 textFile.Close
 
-folderNames.Add AfterFolderName
-
 for each x in folderNames
     msgbox x
 next
-
 
 
 If CreateShortcut = "true" Then

@@ -48,5 +48,11 @@ Else
 End If
 
 If CreateShortcut = "true" Then
-    MsgBox("true")
+    Dim objShell, objLink, workingDirectory
+    workingDirectory = fso.GetAbsolutePathName(".")
+    Set objShell = CreateObject("WScript.Shell")
+    Set objLink = objShell.CreateShortcut(workingDirectory & "\" & GameName &  "\" & TaskName & "\network.lnk")
+    objLink.TargetPath = "explorer.exe"
+    objLink.Arguments = TaskPath
+    objLink.Save
 End If

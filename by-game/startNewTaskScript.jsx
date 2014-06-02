@@ -106,6 +106,9 @@
             pal.grp.minimumSize = pal.grp.size;
             pal.layout.resize();
             pal.onResizing = pal.onResize = function () {this.layout.resize();}
+
+            pal.grp.opts.getNetOpts.netShortcut.enabled = false;
+            pal.grp.opts.getNetOpts.netFolders.onClick = function () {sntPal.grp.opts.getNetOpts.netShortcut.enabled = true;}
             
             pal.grp.header.help.onClick = function () {alert(startNewTask.scriptTitle + "\n" + "\n" + startNewTask_localize(startNewTask.strHelpText), startNewTask_localize(startNewTask.strHelpTitle));}
             pal.grp.cmds.executeBtn.onClick = startNewTask_doExecute;
@@ -160,7 +163,7 @@
                 parentNode = parentNode.parent();
             }
             pathArray.push(nodePath);
-        };
+        }
 
         Array.prototype.contains = function(obj) {
             var i = this.length;
@@ -191,7 +194,7 @@
         for (var i = 0; i < pathArray.length; i++) {
             var cmdLineToExecute = "mkdir " + gamename + "\\" + taskname + "\\" + pathArray[i] + "\"";
             system.callSystem("cmd /c \"" + cmdLineToExecute + "\"");
-        };
+        }
 
         //network objects
         //
@@ -227,7 +230,7 @@
         for (var i = 0; i < firstLevel.length(); i++) {
             var nodeName = firstLevel[i].@name.toString();
             folderList.push(nodeName);
-        };
+        }
 
         //add aepFolderName if its not in folderList array
         if (folderList.contains(aepFolderName) == false) {
@@ -237,7 +240,7 @@
         //create folder structure
         for (var i = 0; i < folderList.length; i++) {
             app.project.items.addFolder(folderList[i])
-        };
+        }
     
         function projectItem(name) {
             var items = app.project.items;

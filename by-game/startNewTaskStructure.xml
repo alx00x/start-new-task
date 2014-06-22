@@ -1,14 +1,25 @@
 <?xml version='1.0'?>
 <root network="\\192.168.0.200\c\game">
-    <dir name="after" />
-    <dir name="info">
-        <dir name="mat" />
-    </dir>
-    <dir name="paint">
-        <dir name="mat" />
-        <dir name="wip" />
-    </dir>
-    <dir name="lipsync" />
-    <dir name="render" />
-    <dir name="scene" />
+    <resolution>
+        <res name="zoom zone" height="640" width="480" />
+        <res name="game (SD)" height="1280" width="768" />
+        <res name="zoom zone" height="640" width="480" />
+    </resolution>
+    <structure>
+        <dir name="after" />
+        <dir name="info">
+            <dir name="mat" />
+        </dir>
+        <dir name="paint">
+            <dir name="mat" />
+            <dir name="wip" />
+        </dir>
+        <dir name="lipsync" />
+        <dir name="render" />
+        <dir name="scene">
+            <dir name="tex" />
+            <dir name="sim" />
+            <dir name="obj" />
+        </dir>
+    </structure>
 </root>

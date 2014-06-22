@@ -23,7 +23,7 @@
     var startNewTask = new Object(); // Store globals in an object
     startNewTask.scriptNameShort = "SNT by game";
     startNewTask.scriptName = "Start New Task";
-    startNewTask.scriptVersion = "1.4";
+    startNewTask.scriptVersion = "1.5";
     startNewTask.scriptTitle = startNewTask.scriptName + " v" + startNewTask.scriptVersion;
 
     startNewTask.strGameName = {en: "Game Name"};
@@ -153,11 +153,11 @@
         var myXML = new XML(xmlString);
         xmlFile.close();
 
-        var nodeList = myXML.xpath("//*[@name]");
+        var nodeList = myXML.xpath("//dir]");
         for (var i = 0; i < nodeList.length(); i++) {
             var nodePath = "\\" + nodeList[i].@name.toString();
             var parentNode = nodeList[i].parent();
-            while (parentNode.name() != "root") {
+            while (parentNode.name() != "structure") {
                 var folderName =  "\\" + parentNode.@name.toString();
                 nodePath = folderName.concat(nodePath);
                 parentNode = parentNode.parent();
@@ -226,9 +226,9 @@
         }
 
         //populate folderList
-        var firstLevel = myXML.children();
-        for (var i = 0; i < firstLevel.length(); i++) {
-            var nodeName = firstLevel[i].@name.toString();
+        var structureNode = myXML.xpath("structure/dir]");
+        for (var i = 0; i < structureNode.length(); i++) {
+            var nodeName = structureNode[i].@name.toString();
             folderList.push(nodeName);
         }
 
@@ -237,7 +237,7 @@
             folderList.push(aepFolderName);
         }
      
-        //create folder structure
+        //create after effects folder structure
         for (var i = 0; i < folderList.length; i++) {
             app.project.items.addFolder(folderList[i])
         }

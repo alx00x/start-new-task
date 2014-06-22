@@ -1,9 +1,9 @@
 <?xml version='1.0'?>
 <root network="\\192.168.0.200\c\game">
     <resolution>
-        <res name="zoom zone" height="640" width="480" />
-        <res name="game (SD)" height="1280" width="768" />
-        <res name="zoom zone" height="640" width="480" />
+        <res name="cinematic" width="1024" height="512" />
+        <res name="game (SD)" width="1280" height="768" />
+        <res name="zoom zone" width="640" height="480" />
     </resolution>
     <structure>
         <dir name="after" />

@@ -23,11 +23,12 @@
     var startNewTask = new Object(); // Store globals in an object
     startNewTask.scriptNameShort = "SNT by game";
     startNewTask.scriptName = "Start New Task";
-    startNewTask.scriptVersion = "1.5";
+    startNewTask.scriptVersion = "1.6";
     startNewTask.scriptTitle = startNewTask.scriptName + " v" + startNewTask.scriptVersion;
 
     startNewTask.strGameName = {en: "Game Name"};
     startNewTask.strTaskName = {en: "Task Name"};
+    startNewTask.strTaskRes = {en: "Resolution"};
 
     startNewTask.strExecute = {en: "OK"};
     startNewTask.strCancel = {en: "Cancel"};
@@ -58,6 +59,32 @@
         return strVar["en"];
     }
 
+    //parse xml file
+    var xmlFile = new File("startNewTaskStructure.xml");
+    xmlFile.open("r");
+    var xmlString = xmlFile.read();
+    var myXML = new XML(xmlString);
+    xmlFile.close();
+
+    //resolution
+    var resolutionNodes = myXML.xpath("resolution/res]");
+    var resDict = [];
+    for (var i = 0; i < resolutionNodes.length(); i++) {
+        var resElement = {};
+        resElement.name = resolutionNodes[i].@name.toString();
+        resElement.width = resolutionNodes[i].@width.toString();
+        resElement.height = resolutionNodes[i].@height.toString();
+        resDict.push(resElement);
+    }
+
+    Object.size = function(obj) {
+        var size = 0, key;
+        for (key in obj) {
+            if (obj.hasOwnProperty(key)) size++;
+        }
+        return size;
+    };
+
     // Build UI
     function startNewTask_buildUI(thisObj)
     {
@@ -84,6 +111,11 @@
                         taskNameText: StaticText { text:'" + startNewTask_localize(startNewTask.strTaskName) + "', preferredSize:[100,20] }, \
                         taskNameInput: EditText { alignment:['fill','center'], preferredSize:[200,20] },  \
                     }, \
+                    getTaskRes: Group { \
+                        alignment:['fill','top'], \
+                        taskResText: StaticText { text:'" + startNewTask_localize(startNewTask.strTaskRes) + "', preferredSize:[100,20] }, \
+                        taskResDropdown: DropDownList { alignment:['fill','top'], alignment:['fill','top'], preferredSize:[-1,20] }, \
+                    }, \
                     sepr: Group { \
                         orientation:'row', alignment:['fill','top'], \
                         rule: Panel { height: 2, alignment:['fill','center'] }, \
@@ -106,6 +138,11 @@
             pal.grp.minimumSize = pal.grp.size;
             pal.layout.resize();
             pal.onResizing = pal.onResize = function () {this.layout.resize();}
+
+            for (var i = 0; i < Object.size(resDict); i++) {
+                pal.grp.opts.getTaskRes.taskResDropdown.add("item", resDict[i]["name"]);
+            }
+            pal.grp.opts.getTaskRes.taskResDropdown.selection = 0;
 
             pal.grp.opts.getNetOpts.netShortcut.enabled = false;
             pal.grp.opts.getNetOpts.netFolders.onClick = function () {sntPal.grp.opts.getNetOpts.netShortcut.enabled = true;}
@@ -146,13 +183,7 @@
         var folderList = [];
         var pathArray = [];
 
-        //parse xml file
-        var xmlFile = new File("startNewTaskStructure.xml");
-        xmlFile.open("r");
-        var xmlString = xmlFile.read();
-        var myXML = new XML(xmlString);
-        xmlFile.close();
-
+        //structure
         var nodeList = myXML.xpath("//dir]");
         for (var i = 0; i < nodeList.length(); i++) {
             var nodePath = "\\" + nodeList[i].@name.toString();
@@ -255,11 +286,16 @@
         }
     
         var renderFolder = projectItem(aepFolderName).items.addFolder("_render");
+
+        //resolution choice
+        var resolutionChoice = sntPal.grp.opts.getTaskRes.taskResDropdown.selection.index;
+        var taskwidth = parseInt(resDict[resolutionChoice]["width"]);
+        var taskheight = parseInt(resDict[resolutionChoice]["height"]);
     
         //create comps and set label colors
-        var projectComp = projectItem(aepFolderName).items.addComp(taskname, 1024, 512, 1, 20, 25);
-        var renderComp = projectItem(aepFolderName).items.addComp("render_comp", 1024, 512, 1, 20, 25);
-        var mainComp = projectItem(aepFolderName).items.addComp("main_comp", 1024, 512, 1, 20, 25);
+        var projectComp = projectItem(aepFolderName).items.addComp(taskname, taskwidth, taskheight, 1, 20, 25);
+        var renderComp = projectItem(aepFolderName).items.addComp("render_comp", taskwidth, taskheight, 1, 20, 25);
+        var mainComp = projectItem(aepFolderName).items.addComp("main_comp", taskwidth, taskheight, 1, 20, 25);
     
         projectComp.parentFolder = renderFolder;
       
@@ -290,7 +326,7 @@
         }
       
         //create background solid and open main comp in viewer
-        mainComp.layers.addSolid([0.5,0.5,0.5], "main_comp_bg", 1024, 512, 1);
+        mainComp.layers.addSolid([0.5,0.5,0.5], "main_comp_bg", taskwidth, taskheight, 1);
         mainComp.openInViewer();
 
         var projectfilesave = new File(projectfile);

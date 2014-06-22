@@ -23,7 +23,7 @@
     var startNewTask = new Object(); // Store globals in an object
     startNewTask.scriptNameShort = "SNT by game";
     startNewTask.scriptName = "Start New Task";
-    startNewTask.scriptVersion = "1.6";
+    startNewTask.scriptVersion = "1.7";
     startNewTask.scriptTitle = startNewTask.scriptName + " v" + startNewTask.scriptVersion;
 
     startNewTask.strGameName = {en: "Game Name"};
@@ -45,9 +45,9 @@
     startNewTask.strHelpTitle = {en: "Help"};
     startNewTask.strHelpText = 
     {
-        en: "This script creates an after effects project and a folder structure specified in folderList.txt\n" +
+        en: "This script creates an after effects project and a standardized folder structure\n" +
         "\n" +
-        "Names:\n" +
+        "Rules:\n" +
         " - Game Name should be a proper abbreviation.\n" +
         " - Task Name is specified in a project spreadsheet.\n" +
         "\n"
@@ -140,7 +140,7 @@
             pal.onResizing = pal.onResize = function () {this.layout.resize();}
 
             for (var i = 0; i < Object.size(resDict); i++) {
-                pal.grp.opts.getTaskRes.taskResDropdown.add("item", resDict[i]["name"]);
+                pal.grp.opts.getTaskRes.taskResDropdown.add("item", "[" + resDict[i]["width"] + "x" + resDict[i]["height"] + "] " + resDict[i]["name"]);
             }
             pal.grp.opts.getTaskRes.taskResDropdown.selection = 0;
 

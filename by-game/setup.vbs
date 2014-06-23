@@ -8,9 +8,9 @@ If Not fso.FolderExists("D:\epx") Then
     fso.CreateFolder "D:\epx"
 End If
 
-objFSO.CopyFile epxPath & "startNewTask.bat", "D:\epx\", OverwriteExisting
-objFSO.CopyFile epxPath & "startNewTaskNetwork.vbs", "D:\epx\", OverwriteExisting
-objFSO.CopyFile epxPath & "startNewTaskScript.jsx", "D:\epx\", OverwriteExisting
-objFSO.CopyFile epxPath & "startNewTaskStructure.xml", "D:\epx\", OverwriteExisting
+fso.CopyFile epxPath & "startNewTask.bat", "D:\epx\", true
+fso.CopyFile epxPath & "startNewTaskNetwork.vbs", "D:\epx\", true
+fso.CopyFile epxPath & "startNewTaskScript.jsx", "D:\epx\", true
+fso.CopyFile epxPath & "startNewTaskStructure.xml", "D:\epx\", true
 
 WScript.Quit()

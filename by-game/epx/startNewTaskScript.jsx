@@ -23,7 +23,7 @@
     var startNewTask = new Object(); // Store globals in an object
     startNewTask.scriptNameShort = "SNT by game";
     startNewTask.scriptName = "Start New Task";
-    startNewTask.scriptVersion = "1.7";
+    startNewTask.scriptVersion = "1.8";
     startNewTask.scriptTitle = startNewTask.scriptName + " v" + startNewTask.scriptVersion;
 
     startNewTask.strGameName = {en: "Game Name"};
@@ -256,23 +256,55 @@
             }
         }
 
-        //populate folderList
-        var structureNode = myXML.xpath("structure/dir]");
-        for (var i = 0; i < structureNode.length(); i++) {
-            var nodeName = structureNode[i].@name.toString();
-            folderList.push(nodeName);
+        ////populate folderList
+        //var structureNode = myXML.xpath("structure/dir]");
+        //for (var i = 0; i < structureNode.length(); i++) {
+        //    var nodeName = structureNode[i].@name.toString();
+        //    folderList.push(nodeName);
+        //}
+
+        ////add aepFolderName if its not in folderList array
+        //if (folderList.contains(aepFolderName) == false) {
+        //    folderList.push(aepFolderName);
+        //}
+     
+        ////create after effects folder structure
+        //for (var i = 0; i < folderList.length; i++) {
+        //    app.project.items.addFolder(folderList[i])
+        //}
+
+        var selectedNodes = myXML.xpath("structure/dir]");
+    
+        //create an after effects folder structure
+        for (var i = 0; i < selectedNodes.length(); i++) {
+            createFolderFromNode(selectedNodes[i], app.project);
         }
 
-        //add aepFolderName if its not in folderList array
-        if (folderList.contains(aepFolderName) == false) {
-            folderList.push(aepFolderName);
+        //function to create folders respecting XML structure
+        function createFolderFromNode(node, parent) {
+            var nodeFolder = parent.items.addFolder(node.@name.toString());
+            if (node.elements().length() > 0) {
+                var selectedChildNodes = node.elements();
+                for (var i = 0; i < selectedChildNodes.length(); i++) {
+                    createFolderFromNode(selectedChildNodes[i], nodeFolder)
+                }
+            }
         }
-     
-        //create after effects folder structure
-        for (var i = 0; i < folderList.length; i++) {
-            app.project.items.addFolder(folderList[i])
+
+        //check if aepFolderName is in the project
+        var aepFolderNameFound = false;
+        for (var i = 1; i <= app.project.numItems; i++) {
+            if (app.project.item(i).name == aepFolderName) {
+                aepFolderNameFound = true;
+            }
         }
-    
+
+        //add aepFolderName if its not in the project
+        if (aepFolderNameFound == false) {
+            app.project.items.addFolder(aepFolderName);
+        }
+
+        //get project item by name
         function projectItem(name) {
             var items = app.project.items;
             i = 1;
@@ -284,39 +316,39 @@
                 i++;
             }
         }
-    
+
         var renderFolder = projectItem(aepFolderName).items.addFolder("_render");
 
         //resolution choice
         var resolutionChoice = sntPal.grp.opts.getTaskRes.taskResDropdown.selection.index;
         var taskwidth = parseInt(resDict[resolutionChoice]["width"]);
         var taskheight = parseInt(resDict[resolutionChoice]["height"]);
-    
+
         //create comps and set label colors
         var projectComp = projectItem(aepFolderName).items.addComp(taskname, taskwidth, taskheight, 1, 20, 25);
         var renderComp = projectItem(aepFolderName).items.addComp("render_comp", taskwidth, taskheight, 1, 20, 25);
         var mainComp = projectItem(aepFolderName).items.addComp("main_comp", taskwidth, taskheight, 1, 20, 25);
-    
+
         projectComp.parentFolder = renderFolder;
-      
+
         projectComp.layers.add(renderComp);
         renderComp.layers.add(mainComp);
-      
+
         for (var i = 1; i<app.project.numItems; i++) {
             if (app.project.item(i).name == "render_comp") {
                 app.project.item(i).label = 1;
             }
         }
-      
+
         for (var i = 1; i<app.project.numItems; i++) {
             if (app.project.item(i).name == "main_comp") {
                 app.project.item(i).label = 8;
             }
         }
-      
+
         //deselect everything (preventive)
         app.project.items[i].selected = false; 
-      
+
         //select main comp
         var selectedComp = new Array();
         for (var i = 1; i <= app.project.items.length; i++) {
@@ -324,7 +356,7 @@
                 app.project.items[i].selected = true;
             }
         }
-      
+
         //create background solid and open main comp in viewer
         mainComp.layers.addSolid([0.5,0.5,0.5], "main_comp_bg", taskwidth, taskheight, 1);
         mainComp.openInViewer();

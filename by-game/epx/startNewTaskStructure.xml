@@ -9,6 +9,7 @@
         <dir name="after">
             <dir name="element" />
         </dir>
+        <dir name="image" />
         <dir name="info">
             <dir name="mat" />
         </dir>
@@ -26,7 +27,8 @@
         <dir name="render" />
         <dir name="stock">
             <dir name="footage" />
-            <dir name="image" />
+            <dir name="photo" />
         </dir>
+        <dir name="video" />
     </structure>
 </root>

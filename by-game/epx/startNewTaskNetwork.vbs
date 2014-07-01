@@ -39,7 +39,6 @@ End If
 
 If fso.FolderExists(TaskPath) Then
     MsgBox("Conflict: This task has already been created on the network location.")
-    WScript.Quit
 Else
     Set TaskFolder = fso.CreateFolder(TaskPath)
     For Each Path In PathArray
@@ -56,3 +55,5 @@ If CreateShortcut = "true" Then
     objLink.Arguments = TaskPath
     objLink.Save
 End If
+
+WScript.Quit

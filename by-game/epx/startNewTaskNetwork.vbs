@@ -38,7 +38,16 @@ If Not fso.FolderExists(GamePath) Then
 End If
 
 If fso.FolderExists(TaskPath) Then
-    MsgBox("Conflict: This task has already been created on the network location.")
+    msgPrompt = Msgbox("Conflict: This task has already been created on the network. Do you want to proceed?", vbYesNo, "Network")
+    If msgPrompt = vbYes Then
+        For Each Path In PathArray
+            If Not fso.FolderExists(Path) Then
+                fso.CreateFolder(Path)
+            End If
+        Next
+    Else
+        Msgbox "Creating network structure aborted."
+    End If
 Else
     Set TaskFolder = fso.CreateFolder(TaskPath)
     For Each Path In PathArray

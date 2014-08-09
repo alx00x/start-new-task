@@ -1,4 +1,7 @@
 Just run setup.vbs
 
-It will set your work environment for you at this location: 
+ 
+
+
+This will set your work environment at: 
 D:\epx\

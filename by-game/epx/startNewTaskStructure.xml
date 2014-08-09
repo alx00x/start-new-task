@@ -9,6 +9,7 @@
         <dir name="after">
             <dir name="element" />
         </dir>
+        <dir name="fraps" />
         <dir name="image" />
         <dir name="info">
             <dir name="mat" />

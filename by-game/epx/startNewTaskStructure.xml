@@ -1,4 +1,4 @@
-<?xml version='1.0'?>
+<?xml version="1.0"?>
 <root network="\\192.168.0.200\c\game">
     <resolution>
         <res name="cinematic" width="1024" height="512" />

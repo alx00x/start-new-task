@@ -1,6 +1,7 @@
 ﻿// startNewTask.jsx
 // 
 // Name: startNewTask
+// Version: 1.9
 // Author: Aleksandar Kocic
 //
 // Note: Builds structure by game.
@@ -12,6 +13,7 @@
 
     // Globals
     var aepFolderName = "after";
+    var aepInfoFolder = "info";
 
     var gamename; //game
     var taskname; //task
@@ -23,8 +25,10 @@
     var startNewTask = new Object(); // Store globals in an object
     startNewTask.scriptNameShort = "SNT by game";
     startNewTask.scriptName = "Start New Task";
-    startNewTask.scriptVersion = "1.8";
+    startNewTask.scriptVersion = "1.9";
     startNewTask.scriptTitle = startNewTask.scriptName + " v" + startNewTask.scriptVersion;
+
+    startNewTask.strIsAnimaticTask = {en: "This is Animatic Task"};
 
     startNewTask.strGameName = {en: "Game Name"};
     startNewTask.strTaskName = {en: "Task Name"};
@@ -125,6 +129,10 @@
                         netFolders: Checkbox { text:'" + startNewTask_localize(startNewTask.strNetFolders) + "', alignment:['fill','top'] }, \
                         netShortcut: Checkbox { text:'" + startNewTask_localize(startNewTask.strNetShortcut) + "', alignment:['fill','top'] }, \
                     }, \
+                    isAnimaticTask: Group { \
+                        alignment:['fill','top'], \
+                        box1: Checkbox { text:'" + startNewTask_localize(startNewTask.strIsAnimaticTask) + "', alignment:['fill','top'] }, \
+                    }, \
                 }, \
                 cmds: Group { \
                     alignment:['fill','bottom'], \
@@ -144,6 +152,8 @@
             }
             pal.grp.opts.getTaskRes.taskResDropdown.selection = 0;
 
+            pal.grp.opts.isAnimaticTask.box1.value = false;
+
             pal.grp.opts.getNetOpts.netShortcut.enabled = false;
             pal.grp.opts.getNetOpts.netFolders.onClick = function () {sntPal.grp.opts.getNetOpts.netShortcut.enabled = true;}
             
@@ -161,7 +171,12 @@
         gamename = sntPal.grp.opts.getGameName.gameNameInput.text;
         taskname = sntPal.grp.opts.getTaskName.taskNameInput.text;
 
-        projectfile = scriptpath.fsName + "\\" + gamename + "\\" + taskname + "\\" + aepFolderName + "\\" + taskname + "_v001";
+        if (sntPal.grp.opts.isAnimaticTask.box1.value == true) {
+            projectfile = scriptpath.fsName + "\\" + gamename + "\\" + taskname + "\\" + aepInfoFolder + "\\" + taskname + "_v001";
+        } else {
+            projectfile = scriptpath.fsName + "\\" + gamename + "\\" + taskname + "\\" + aepFolderName + "\\" + taskname + "_v001";
+        }
+
         projectfolder = new Folder(scriptpath.fsName + "\\" + gamename + "\\" + taskname);
     }
 
@@ -211,6 +226,11 @@
             pathArray.push(aepFolderName);
         }
 
+        //add aepInfoFolder if its not in pathArray array
+        if (pathArray.contains(aepInfoFolder) == false) {
+            pathArray.push(aepInfoFolder);
+        }
+
         //create directory structure
         gamefolder = new Folder(scriptpath.fsName + "\\" + gamename);
 
@@ -256,23 +276,6 @@
             }
         }
 
-        ////populate folderList
-        //var structureNode = myXML.xpath("structure/dir]");
-        //for (var i = 0; i < structureNode.length(); i++) {
-        //    var nodeName = structureNode[i].@name.toString();
-        //    folderList.push(nodeName);
-        //}
-
-        ////add aepFolderName if its not in folderList array
-        //if (folderList.contains(aepFolderName) == false) {
-        //    folderList.push(aepFolderName);
-        //}
-     
-        ////create after effects folder structure
-        //for (var i = 0; i < folderList.length; i++) {
-        //    app.project.items.addFolder(folderList[i])
-        //}
-
         var selectedNodes = myXML.xpath("structure/dir]");
     
         //create an after effects folder structure
@@ -291,19 +294,6 @@
             }
         }
 
-        //check if aepFolderName is in the project
-        var aepFolderNameFound = false;
-        for (var i = 1; i <= app.project.numItems; i++) {
-            if (app.project.item(i).name == aepFolderName) {
-                aepFolderNameFound = true;
-            }
-        }
-
-        //add aepFolderName if its not in the project
-        if (aepFolderNameFound == false) {
-            app.project.items.addFolder(aepFolderName);
-        }
-
         //get project item by name
         function projectItem(name) {
             var items = app.project.items;
@@ -317,17 +307,47 @@
             }
         }
 
-        var renderFolder = projectItem(aepFolderName).items.addFolder("_render");
-
         //resolution choice
         var resolutionChoice = sntPal.grp.opts.getTaskRes.taskResDropdown.selection.index;
         var taskwidth = parseInt(resDict[resolutionChoice]["width"]);
         var taskheight = parseInt(resDict[resolutionChoice]["height"]);
 
+        //if animatic task, initiate animatic compositions
+        var aepVariable = aepFolderName;
+        if (sntPal.grp.opts.isAnimaticTask.box1.value == true) {
+            aepVariable = aepInfoFolder;
+        }
+
+        //generate metadata
+        var metadata_xml = new File(scriptpath.fsName + "\\" + gamename + "\\" + taskname + "\\" + aepInfoFolder + "\\" + "metadata.xml");
+        metadata_xml.open("w");
+        metadata_xml.writeln('<?xml version="1.0"?>');
+        metadata_xml.writeln('<meta>');
+        metadata_xml.writeln('    <game="' + gamename + '" />');
+        metadata_xml.writeln('    <task="' + taskname + '" />');
+        metadata_xml.writeln('    <width="' + taskwidth + '" />');
+        metadata_xml.writeln('    <height="' + taskheight + '" />');
+        metadata_xml.writeln('</meta>');
+        metadata_xml.close();
+
+        //check if aepVariable is in the project
+        var aepVariableFound = false;
+        for (var i = 1; i <= app.project.numItems; i++) {
+            if (app.project.item(i).name == aepVariable) {
+                aepVariableFound = true;
+            }
+        }
+
+        //add aepVariable if its not in the project
+        if (aepVariableFound == false) {
+            app.project.items.addFolder(aepVariable);
+        }
+        var renderFolder = projectItem(aepVariable).items.addFolder("_render");
+
         //create comps and set label colors
-        var projectComp = projectItem(aepFolderName).items.addComp(taskname, taskwidth, taskheight, 1, 20, 25);
-        var renderComp = projectItem(aepFolderName).items.addComp("render_comp", taskwidth, taskheight, 1, 20, 25);
-        var mainComp = projectItem(aepFolderName).items.addComp("main_comp", taskwidth, taskheight, 1, 20, 25);
+        var projectComp = projectItem(aepVariable).items.addComp(taskname, taskwidth, taskheight, 1, 20, 25);
+        var renderComp = projectItem(aepVariable).items.addComp("render_comp", taskwidth, taskheight, 1, 20, 25);
+        var mainComp = projectItem(aepVariable).items.addComp("main_comp", taskwidth, taskheight, 1, 20, 25);
 
         projectComp.parentFolder = renderFolder;
 
@@ -365,7 +385,6 @@
         app.project.save(projectfilesave);
         app.project.close(CloseOptions.SAVE_CHANGES);
         app.quit()
-
     }
 
     // Buttons:

@@ -71,7 +71,7 @@
     xmlFile.close();
 
     //resolution
-    var resolutionNodes = myXML.xpath("resolution/res]");
+    var resolutionNodes = myXML.xpath("resolution/res");
     var resDict = [];
     for (var i = 0; i < resolutionNodes.length(); i++) {
         var resElement = {};
@@ -323,10 +323,12 @@
         metadata_xml.open("w");
         metadata_xml.writeln('<?xml version="1.0"?>');
         metadata_xml.writeln('<meta>');
-        metadata_xml.writeln('    <game="' + gamename + '" />');
-        metadata_xml.writeln('    <task="' + taskname + '" />');
-        metadata_xml.writeln('    <width="' + taskwidth + '" />');
-        metadata_xml.writeln('    <height="' + taskheight + '" />');
+        metadata_xml.writeln('    <data category="main">');
+        metadata_xml.writeln('        <game="' + gamename + '" />');
+        metadata_xml.writeln('        <task="' + taskname + '" />');
+        metadata_xml.writeln('        <width="' + taskwidth + '" />');
+        metadata_xml.writeln('        <height="' + taskheight + '" />');
+        metadata_xml.writeln('    </data>');
         metadata_xml.writeln('</meta>');
         metadata_xml.close();
 

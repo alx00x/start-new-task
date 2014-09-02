@@ -324,10 +324,10 @@
         metadata_xml.writeln('<?xml version="1.0"?>');
         metadata_xml.writeln('<meta>');
         metadata_xml.writeln('    <data category="main">');
-        metadata_xml.writeln('        <game="' + gamename + '" />');
-        metadata_xml.writeln('        <task="' + taskname + '" />');
-        metadata_xml.writeln('        <width="' + taskwidth + '" />');
-        metadata_xml.writeln('        <height="' + taskheight + '" />');
+        metadata_xml.writeln('        <game>' + gamename + '</game>');
+        metadata_xml.writeln('        <task>' + taskname + '</task>');
+        metadata_xml.writeln('        <width>' + taskwidth + '</width>');
+        metadata_xml.writeln('        <height>' + taskheight + '</height>');
         metadata_xml.writeln('    </data>');
         metadata_xml.writeln('</meta>');
         metadata_xml.close();

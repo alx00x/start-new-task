@@ -1,4 +1,4 @@
-﻿// startNewTask.jsx
+// startNewTask.jsx
 // 
 // Name: startNewTask
 // Version: 1.9
@@ -192,6 +192,18 @@
 
     function startNewTask_main() {
 
+        //resolution choice
+        var resolutionChoice = sntPal.grp.opts.getTaskRes.taskResDropdown.selection.index;
+        var taskwidth = parseInt(resDict[resolutionChoice]["width"]);
+        var taskheight = parseInt(resDict[resolutionChoice]["height"]);
+
+        //get date
+        var today = new Date();
+        var currDay = ("0" + today.getDate()).slice(-2)
+        var currMonth = ("0" + (today.getMonth() + 1)).slice(-2)
+        var currYear = today.getFullYear();
+        var todayFormated = currDay + "-" + currMonth + "-" + currYear;
+
         //system objects
         //
         //define arrays
@@ -246,6 +258,31 @@
             var cmdLineToExecute = "mkdir " + gamename + "\\" + taskname + "\\" + pathArray[i] + "\"";
             system.callSystem("cmd /c \"" + cmdLineToExecute + "\"");
         }
+
+        //read startNewTaskAuthor.xml
+        var startNewTaskAuthor = new File("startNewTaskAuthor.xml");
+        startNewTaskAuthor.open("r");
+        var startNewTaskAuthorString = startNewTaskAuthor.read();
+        var startNewTaskAuthorXML = new XML(startNewTaskAuthorString);
+        startNewTaskAuthor.close();
+        var authorFirstName = startNewTaskAuthorXML.data.firstname;
+        var authorLastName = startNewTaskAuthorXML.data.lastname;
+
+        //generate metadata
+        var metadata_xml = new File(scriptpath.fsName + "\\" + gamename + "\\" + taskname + "\\" + aepInfoFolder + "\\" + "metadata.xml");
+        metadata_xml.open("w");
+        metadata_xml.writeln('<?xml version="1.0"?>');
+        metadata_xml.writeln('<meta>');
+        metadata_xml.writeln('    <data category="main">');
+        metadata_xml.writeln('        <author>' + authorFirstName + ' ' + authorLastName + '</author>');
+        metadata_xml.writeln('        <date>' + todayFormated + '</date>');
+        metadata_xml.writeln('        <game>' + gamename + '</game>');
+        metadata_xml.writeln('        <task>' + taskname + '</task>');
+        metadata_xml.writeln('        <width>' + taskwidth + '</width>');
+        metadata_xml.writeln('        <height>' + taskheight + '</height>');
+        metadata_xml.writeln('    </data>');
+        metadata_xml.writeln('</meta>');
+        metadata_xml.close();
 
         //network objects
         //
@@ -307,30 +344,11 @@
             }
         }
 
-        //resolution choice
-        var resolutionChoice = sntPal.grp.opts.getTaskRes.taskResDropdown.selection.index;
-        var taskwidth = parseInt(resDict[resolutionChoice]["width"]);
-        var taskheight = parseInt(resDict[resolutionChoice]["height"]);
-
         //if animatic task, initiate animatic compositions
         var aepVariable = aepFolderName;
         if (sntPal.grp.opts.isAnimaticTask.box1.value == true) {
             aepVariable = aepInfoFolder;
         }
-
-        //generate metadata
-        var metadata_xml = new File(scriptpath.fsName + "\\" + gamename + "\\" + taskname + "\\" + aepInfoFolder + "\\" + "metadata.xml");
-        metadata_xml.open("w");
-        metadata_xml.writeln('<?xml version="1.0"?>');
-        metadata_xml.writeln('<meta>');
-        metadata_xml.writeln('    <data category="main">');
-        metadata_xml.writeln('        <game>' + gamename + '</game>');
-        metadata_xml.writeln('        <task>' + taskname + '</task>');
-        metadata_xml.writeln('        <width>' + taskwidth + '</width>');
-        metadata_xml.writeln('        <height>' + taskheight + '</height>');
-        metadata_xml.writeln('    </data>');
-        metadata_xml.writeln('</meta>');
-        metadata_xml.close();
 
         //check if aepVariable is in the project
         var aepVariableFound = false;

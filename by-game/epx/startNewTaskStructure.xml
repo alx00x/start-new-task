@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <root network="\\192.168.0.200\c\game">
     <resolution>
         <res name="cinematic" width="1024" height="512" />
@@ -13,6 +13,7 @@
         <dir name="image" />
         <dir name="info">
             <dir name="mat" />
+            <dir name="work" />
         </dir>
         <dir name="lipsync" />
         <dir name="paint">
@@ -20,11 +21,7 @@
             <dir name="wip" />
             <dir name="use" />
         </dir>
-        <dir name="scene">
-            <dir name="tex" />
-            <dir name="sim" />
-            <dir name="obj" />
-        </dir>
+        <dir name="scene" />
         <dir name="render" />
         <dir name="stock">
             <dir name="footage" />

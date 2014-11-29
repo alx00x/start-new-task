@@ -1,3 +1,5 @@
+On Error Resume Next
+
 Dim fso, GameName, TaskName, CreateShortcut
 Set fso = CreateObject("Scripting.FileSystemObject")
 Set objArgs = WScript.Arguments
@@ -8,7 +10,7 @@ CreateShortcut = objArgs(2)
 
 Dim objXMLDoc, NodeList
 Dim SelectedNode, FolderName, NodePath, PathArray
-Dim NetworkPath, GamePath, TaskPath
+Dim NetworkPath, GamePath, TaskPath, WorkingDirectory
 
 Set objXMLDoc = CreateObject("Microsoft.XMLDOM")
 objXMLDoc.async = False
@@ -18,6 +20,7 @@ Set RootNode = objXMLDoc.documentElement.selectSingleNode("//root")
 NetworkPath = RootNode.getAttribute("network")
 GamePath = NetworkPath & "\" & GameName
 TaskPath = GamePath & "\" & TaskName
+WorkingDirectory = fso.GetAbsolutePathName(".")
 
 Set NodeList = objXMLDoc.getElementsByTagName("dir")
 PathArray = array()
@@ -55,11 +58,23 @@ Else
     Next
 End If
 
+Dim MetaDataFile, NetworkInfoFolder
+MetaDataFile = WorkingDirectory & "\" & GameName & "\" & TaskName & "\info\metadata.xml" 
+NetworkInfoFolder = TaskPath & "\info\" 
+
+If fso.FileExists(MetaDataFile) Then
+    If fso.FolderExists(NetworkInfoFolder) Then
+        fso.CopyFile MetaDataFile, NetworkInfoFolder
+    Else
+        Msgbox "There was an error. Creating network structure aborted."
+    End If
+Else
+    Msgbox "Could not find metadata file."
+End If
+
 If CreateShortcut = "true" Then
-    Dim objShell, objLink, workingDirectory
-    workingDirectory = fso.GetAbsolutePathName(".")
     Set objShell = CreateObject("WScript.Shell")
-    Set objLink = objShell.CreateShortcut(workingDirectory & "\" & GameName & "\" & TaskName & "\network.lnk")
+    Set objLink = objShell.CreateShortcut(WorkingDirectory & "\" & GameName & "\" & TaskName & "\network.lnk")
     objLink.TargetPath = "explorer.exe"
     objLink.Arguments = TaskPath
     objLink.Save

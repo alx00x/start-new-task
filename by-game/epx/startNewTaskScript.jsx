@@ -1,10 +1,10 @@
 // startNewTask.jsx
 // 
 // Name: startNewTask
-// Version: 1.9
+// Version: 2.0
 // Author: Aleksandar Kocic
 //
-// Note: Builds structure by game.
+// Description: Builds structure and sets up a project.
 // 
 
 (function startNewTask(thisObj)
@@ -14,6 +14,7 @@
     // Globals
     var aepFolderName = "after";
     var aepInfoFolder = "info";
+    var aepInfoWipFolder = "work";
 
     var gamename; //game
     var taskname; //task
@@ -40,7 +41,9 @@
     startNewTask.strGameNameError = {en: "Please specify game name."};
     startNewTask.strTaskNameError = {en: "Please specify task name."};
     startNewTask.strSpacesError = {en: "You better not use spaces!"};
-    startNewTask.strProjectError = {en: "This project already exists! Choose a different name."};
+    startNewTask.strProjectError = {en: "This project already exists on local drive. Do you wish to continue?"};
+    startNewTask.strProjectErrorYes = {en: "Yes"};
+    startNewTask.strProjectErrorNo = {en: "No"};
 
     startNewTask.strNetFolders = {en: "Create Network Folders"};
     startNewTask.strNetShortcut = {en: "Create Network Shortcut"};
@@ -63,14 +66,14 @@
         return strVar["en"];
     }
 
-    //parse xml file
+    // parse xml file
     var xmlFile = new File("startNewTaskStructure.xml");
     xmlFile.open("r");
     var xmlString = xmlFile.read();
     var myXML = new XML(xmlString);
     xmlFile.close();
 
-    //resolution
+    // resolution
     var resolutionNodes = myXML.xpath("resolution/res");
     var resDict = [];
     for (var i = 0; i < resolutionNodes.length(); i++) {
@@ -80,6 +83,7 @@
         resElement.height = resolutionNodes[i].@height.toString();
         resDict.push(resElement);
     }
+    var networkPath = myXML.@network.toString();
 
     Object.size = function(obj) {
         var size = 0, key;
@@ -153,8 +157,7 @@
             pal.grp.opts.getTaskRes.taskResDropdown.selection = 0;
 
             pal.grp.opts.isAnimaticTask.box1.value = false;
-
-            pal.grp.opts.getNetOpts.netShortcut.enabled = false;
+            pal.grp.opts.getNetOpts.netFolders.value = true;
             pal.grp.opts.getNetOpts.netFolders.onClick = function () {sntPal.grp.opts.getNetOpts.netShortcut.enabled = true;}
             
             pal.grp.header.help.onClick = function () {alert(startNewTask.scriptTitle + "\n" + "\n" + startNewTask_localize(startNewTask.strHelpText), startNewTask_localize(startNewTask.strHelpTitle));}
@@ -170,13 +173,6 @@
     function startNewTask_getInfo() {
         gamename = sntPal.grp.opts.getGameName.gameNameInput.text;
         taskname = sntPal.grp.opts.getTaskName.taskNameInput.text;
-
-        if (sntPal.grp.opts.isAnimaticTask.box1.value == true) {
-            projectfile = scriptpath.fsName + "\\" + gamename + "\\" + taskname + "\\" + aepInfoFolder + "\\" + taskname + "_v001";
-        } else {
-            projectfile = scriptpath.fsName + "\\" + gamename + "\\" + taskname + "\\" + aepFolderName + "\\" + taskname + "_v001";
-        }
-
         projectfolder = new Folder(scriptpath.fsName + "\\" + gamename + "\\" + taskname);
     }
 
@@ -191,26 +187,67 @@
     }
 
     function startNewTask_main() {
+        // define project file path
+        if (sntPal.grp.opts.isAnimaticTask.box1.value == true) {
+            projectfile = scriptpath.fsName + "\\" + gamename + "\\" + taskname + "\\" + aepInfoFolder + "\\" + aepInfoWipFolder + "\\" + taskname + "_v001";
+        } else {
+            projectfile = scriptpath.fsName + "\\" + gamename + "\\" + taskname + "\\" + aepFolderName + "\\" + taskname + "_v001";
+        }
 
-        //resolution choice
+        // function to deal with already existing project files
+        function startNewTask_checkAltProject() {
+            delete postfix;
+            var postfix = prompt("Chose unique postfix","_new");
+            var projectfilePath;
+            if (sntPal.grp.opts.isAnimaticTask.box1.value == true) {
+                projectfilePath = scriptpath.fsName + "\\" + gamename + "\\" + taskname + "\\" + aepInfoFolder + "\\" + aepInfoWipFolder + "\\" + taskname + postfix + "_v001";
+            } else {
+                projectfilePath = scriptpath.fsName + "\\" + gamename + "\\" + taskname + "\\" + aepFolderName + "\\" + taskname + postfix + "_v001";
+            }
+            var projectfilePathCheck = new File(projectfilePath + ".aep");
+
+            if (projectfilePathCheck.exists) {
+                startNewTask_checkAltProject();
+            } else {
+                uniquePostfix = postfix;
+            }
+        }
+
+        // check if project file already exists
+        var projectfilecheck = new File(projectfile + ".aep");
+        if (projectfilecheck.exists) {
+            var uniquePostfix;
+            startNewTask_checkAltProject();
+            if (sntPal.grp.opts.isAnimaticTask.box1.value == true) {
+                projectfile = scriptpath.fsName + "\\" + gamename + "\\" + taskname + "\\" + aepInfoFolder + "\\" + aepInfoWipFolder + "\\" + taskname + uniquePostfix + "_v001";;
+            } else {
+                projectfile = scriptpath.fsName + "\\" + gamename + "\\" + taskname + "\\" + aepFolderName + "\\" + taskname + uniquePostfix + "_v001";;
+            }
+        }
+
+        // resolution choice
         var resolutionChoice = sntPal.grp.opts.getTaskRes.taskResDropdown.selection.index;
         var taskwidth = parseInt(resDict[resolutionChoice]["width"]);
         var taskheight = parseInt(resDict[resolutionChoice]["height"]);
 
-        //get date
+        // get date info
         var today = new Date();
-        var currDay = ("0" + today.getDate()).slice(-2)
-        var currMonth = ("0" + (today.getMonth() + 1)).slice(-2)
+        var currDay = ("0" + today.getDate()).slice(-2);
+        var currMonth = ("0" + (today.getMonth() + 1)).slice(-2);
         var currYear = today.getFullYear();
+        var currHour = ("0" + today.getHours()).slice(-2);
+        var currMinute = ("0" + today.getMinutes()).slice(-2);
+        var currSecond = ("0" + today.getSeconds()).slice(-2);
         var todayFormated = currDay + "-" + currMonth + "-" + currYear;
+        var taskCode = currYear + currMonth + currDay + currHour + currMinute + currSecond;
 
-        //system objects
+        // System objects:
         //
-        //define arrays
+        // define arrays
         var folderList = [];
         var pathArray = [];
 
-        //structure
+        // structure
         var nodeList = myXML.xpath("//dir]");
         for (var i = 0; i < nodeList.length(); i++) {
             var nodePath = "\\" + nodeList[i].@name.toString();
@@ -233,17 +270,22 @@
             return false;
         }
 
-        //add aepFolderName if its not in pathArray array
-        if (pathArray.contains(aepFolderName) == false) {
-            pathArray.push(aepFolderName);
+        // add aepFolderName if its not in pathArray array
+        if (pathArray.contains("\\" + aepFolderName) == false) {
+            pathArray.push("\\" + aepFolderName);
         }
 
-        //add aepInfoFolder if its not in pathArray array
-        if (pathArray.contains(aepInfoFolder) == false) {
-            pathArray.push(aepInfoFolder);
+        // add aepInfoFolder if its not in pathArray array
+        if (pathArray.contains("\\" + aepInfoFolder) == false) {
+            pathArray.push("\\" + aepInfoFolder);
         }
 
-        //create directory structure
+        // add aepInfoWipFolder if its not in pathArray array
+        if (pathArray.contains("\\" + aepInfoFolder + "\\" + aepInfoWipFolder) == false) {
+            pathArray.push("\\" + aepInfoFolder + "\\" + aepInfoWipFolder);
+        }
+
+        // create directory structure
         gamefolder = new Folder(scriptpath.fsName + "\\" + gamename);
 
         if (gamefolder.exists == false) {
@@ -259,7 +301,7 @@
             system.callSystem("cmd /c \"" + cmdLineToExecute + "\"");
         }
 
-        //read startNewTaskAuthor.xml
+        // read startNewTaskAuthor.xml
         var startNewTaskAuthor = new File("startNewTaskAuthor.xml");
         startNewTaskAuthor.open("r");
         var startNewTaskAuthorString = startNewTaskAuthor.read();
@@ -268,44 +310,127 @@
         var authorFirstName = startNewTaskAuthorXML.data.firstname;
         var authorLastName = startNewTaskAuthorXML.data.lastname;
 
-        //generate metadata
+        // metadata build info function
+        function metadataBuildInfo(code, type, first, last, today, game, task, width, height) {
+            return <data type={type} code={code}> <author>{first + " " + last}</author> <date>{today}</date> <game>{game}</game> <task>{task}</task> <width>{width}</width> <height>{height}</height> </data>;
+        }
+
+        // generate metadata
         var metadata_xml = new File(scriptpath.fsName + "\\" + gamename + "\\" + taskname + "\\" + aepInfoFolder + "\\" + "metadata.xml");
-        metadata_xml.open("w");
-        metadata_xml.writeln('<?xml version="1.0"?>');
-        metadata_xml.writeln('<meta>');
-        metadata_xml.writeln('    <data category="main">');
-        metadata_xml.writeln('        <author>' + authorFirstName + ' ' + authorLastName + '</author>');
-        metadata_xml.writeln('        <date>' + todayFormated + '</date>');
-        metadata_xml.writeln('        <game>' + gamename + '</game>');
-        metadata_xml.writeln('        <task>' + taskname + '</task>');
-        metadata_xml.writeln('        <width>' + taskwidth + '</width>');
-        metadata_xml.writeln('        <height>' + taskheight + '</height>');
-        metadata_xml.writeln('    </data>');
-        metadata_xml.writeln('</meta>');
+
+        if (metadata_xml.exists == false) {
+            metadata_xml.open("w");
+            metadata_xml.writeln('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>');
+            metadata_xml.writeln('<meta>');
+            metadata_xml.writeln('</meta>');
+            metadata_xml.close();
+        }
+
+        metadata_xml.open("r");
+        var metadataXMLString = metadata_xml.read();
+        var metadataXML = new XML(metadataXMLString);
         metadata_xml.close();
 
-        //network objects
+        var taskType;
+        if (sntPal.grp.opts.isAnimaticTask.box1.value == true) {
+            taskType = "animatic";
+        } else {
+            taskType = "cinematic";
+        }
+
+        // grab matadata xml from network
+        var networkMetadataExists = false;
+        if (sntPal.grp.opts.getNetOpts.netFolders.value == true) {
+            try {
+                var networkMetadataFile = new File(networkPath + "\\" + gamename + "\\" + taskname + "\\" + aepInfoFolder + "\\" + "metadata.xml");
+                if (networkMetadataFile.exists) {
+                    networkMetadataFile.open("r");
+                    var networkMetadataString = networkMetadataFile.read();
+                    var networkMetadataXML = new XML(networkMetadataString);
+                    networkMetadataFile.close();
+                    networkMetadataExists = true;
+                }
+            } catch(err) {
+                alert(err);
+            }
+        }
+
+        Array.prototype.getDuplicates = function () {
+            var duplicates = {};
+            for (var i = 0; i < this.length; i++) {
+                if(duplicates.hasOwnProperty(this[i])) {
+                    duplicates[this[i]].push(i);
+                } else if (this.lastIndexOf(this[i]) !== i) {
+                    duplicates[this[i]] = [i];
+                }
+            }
+            return duplicates;
+        };
+
+        // combine local and network metadata
+        if (networkMetadataExists == true) {
+            var networkMetadataElements = networkMetadataXML.elements();
+            metadataXML.appendChild(networkMetadataElements);
+            var combinedMetadataElements = metadataXML.elements();
+            var metadataXMLCodeArray = [];
+            for (var i = 0; i < combinedMetadataElements.length(); i++) {
+                if (combinedMetadataElements[i].@code !== null) {
+                    metadataXMLCodeArray.push([combinedMetadataElements[i].childIndex(), combinedMetadataElements[i].@code]);
+                }
+            }
+            var tempXMLArray = new Array();
+            for (var i = 0; i < metadataXMLCodeArray.length; i++) {
+                var flag = true;
+                for (var j = 0; j < tempXMLArray.length; j++) {
+                    if (tempXMLArray[j][1] == metadataXMLCodeArray[i][1]) {
+                        flag = false;
+                    }
+                }
+                if (flag == true)
+                    tempXMLArray.push(metadataXMLCodeArray[i]);
+            }
+            var tempXMLArrayKeep = new Array();
+            for (var i = 0; i < tempXMLArray.length; i++) {
+                tempXMLArrayKeep.push(tempXMLArray[i][0]);
+            }
+            var tempXML = new XML('<meta> </meta>');
+            for (var i = 0; i < tempXMLArrayKeep.length; i++) {
+                tempXML.appendChild(combinedMetadataElements[tempXMLArrayKeep[i]]);
+            }
+            metadataXML = tempXML;
+        }
+
+        // build final metadata file
+        var newXMLObject = metadataBuildInfo(taskCode, taskType, authorFirstName, authorLastName, todayFormated, gamename, taskname, taskwidth, taskheight);
+        metadataXML.appendChild(newXMLObject);
+        metadata_xml.open("w");
+        metadata_xml.writeln('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>');
+        metadata_xml.writeln(metadataXML);
+        metadata_xml.close();
+
+        // Network objects:
         //
         //
         if (sntPal.grp.opts.getNetOpts.netFolders.value == true) {
-
-            var vbsArgument0 = gamename;
-            var vbsArgument1 = taskname;
-            var vbsArgument2 = "false";
-
-            if (sntPal.grp.opts.getNetOpts.netShortcut.value == true) {
-                vbsArgument2 = "true";
+            try {
+                var vbsArgument0 = gamename;
+                var vbsArgument1 = taskname;
+                var vbsArgument2 = "false";
+                if (sntPal.grp.opts.getNetOpts.netShortcut.value == true) {
+                    vbsArgument2 = "true";
+                }
+                var vbsCommand = scriptpath.fsName + "\\" + "startNewTaskNetwork.vbs " + vbsArgument0 + " " + vbsArgument1 + " " + vbsArgument2;
+                system.callSystem("cmd /c \"" + vbsCommand + "\"");
+            } catch(err) {
+                alert(err);
             }
-
-            var vbsCommand = scriptpath.fsName + "\\" + "startNewTaskNetwork.vbs " + vbsArgument0 + " " + vbsArgument1 + " " + vbsArgument2;
-            system.callSystem("cmd /c \"" + vbsCommand + "\"");
         }
 
-        //aftereffects objects
+        // After Effects objects:
         //
-        //prototype function to remove unnecessary items from an array
+        // prototype function to remove unnecessary items from an array
         Array.prototype.removeByValue = function(val) {
-            for(var i=0; i<this.length; i++) {
+            for(var i = 0; i < this.length; i++) {
                 if(this[i] == val) {
                     this.splice(i, 1);
                     break;
@@ -315,12 +440,12 @@
 
         var selectedNodes = myXML.xpath("structure/dir]");
     
-        //create an after effects folder structure
+        // create an after effects folder structure
         for (var i = 0; i < selectedNodes.length(); i++) {
             createFolderFromNode(selectedNodes[i], app.project);
         }
 
-        //function to create folders respecting XML structure
+        // function to create folders respecting XML structure
         function createFolderFromNode(node, parent) {
             var nodeFolder = parent.items.addFolder(node.@name.toString());
             if (node.elements().length() > 0) {
@@ -331,7 +456,7 @@
             }
         }
 
-        //get project item by name
+        // get project item by name
         function projectItem(name) {
             var items = app.project.items;
             i = 1;
@@ -344,13 +469,13 @@
             }
         }
 
-        //if animatic task, initiate animatic compositions
+        // if animatic task, initiate animatic compositions
         var aepVariable = aepFolderName;
         if (sntPal.grp.opts.isAnimaticTask.box1.value == true) {
             aepVariable = aepInfoFolder;
         }
 
-        //check if aepVariable is in the project
+        // check if aepVariable is in the project
         var aepVariableFound = false;
         for (var i = 1; i <= app.project.numItems; i++) {
             if (app.project.item(i).name == aepVariable) {
@@ -358,13 +483,13 @@
             }
         }
 
-        //add aepVariable if its not in the project
+        // add aepVariable if its not in the project
         if (aepVariableFound == false) {
             app.project.items.addFolder(aepVariable);
         }
         var renderFolder = projectItem(aepVariable).items.addFolder("_render");
 
-        //create comps and set label colors
+        // create comps and set label colors
         var projectComp = projectItem(aepVariable).items.addComp(taskname, taskwidth, taskheight, 1, 20, 25);
         var renderComp = projectItem(aepVariable).items.addComp("render_comp", taskwidth, taskheight, 1, 20, 25);
         var mainComp = projectItem(aepVariable).items.addComp("main_comp", taskwidth, taskheight, 1, 20, 25);
@@ -386,10 +511,10 @@
             }
         }
 
-        //deselect everything (preventive)
+        // deselect everything (preventive)
         app.project.items[i].selected = false; 
 
-        //select main comp
+        // select main comp
         var selectedComp = new Array();
         for (var i = 1; i <= app.project.items.length; i++) {
             if ((app.project.items[i] instanceof CompItem)&&(app.project.items[i].name == "main_comp")) {
@@ -397,7 +522,7 @@
             }
         }
 
-        //create background solid and open main comp in viewer
+        // create background solid and open main comp in viewer
         mainComp.layers.addSolid([0.5,0.5,0.5], "main_comp_bg", taskwidth, taskheight, 1);
         mainComp.openInViewer();
 
@@ -421,7 +546,13 @@
             alert(startNewTask_localize(startNewTask.strSpacesError));
         } else {
             if (startNewTask_checkProject() == true) {
-                alert(startNewTask_localize(startNewTask.strProjectError));
+                var projectErrorConfirm = confirm(startNewTask_localize(startNewTask.strProjectError));
+                if (projectErrorConfirm == true) {
+                    startNewTask_main();
+                    sntPal.close();
+                } else {
+                    return;
+                }
             } else {
                 startNewTask_main();
                 sntPal.close();
